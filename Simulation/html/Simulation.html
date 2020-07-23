@@ -1,0 +1,207 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Simulation</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-04-13"><meta name="DC.source" content="Simulation.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Simulation: This is the simulation first draft. Physics engine will run inside this</a></li><li><a href="#2">Loop</a></li></ul></div><h2>Simulation: This is the simulation first draft. Physics engine will run inside this<a name="1"></a></h2><pre class="codeinput"><span class="comment">% Define frames: need to make these globals</span>
+
+clc
+clear <span class="string">all</span>
+close <span class="string">all</span>
+
+<span class="keyword">global</span> Nframe
+<span class="keyword">global</span> dt
+<span class="keyword">global</span> T
+
+<span class="comment">%define simulation space frame</span>
+Nframe = [1 0 0; 0 1 0; 0 0 1];
+
+T = 7.25;                      <span class="comment">%duration of simulation</span>
+dt = 0.01;
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%% STUFF THAT WILL HAPPEN IN THE GUI %%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%define initial conditions</span>
+t = 0;
+phi_0 = 0;  <span class="comment">%initial spin orientation</span>
+psi_0 = 0;  <span class="comment">%initial precession orientation</span>
+theta = 30;  <span class="comment">% The newtation angle, it is between the spin axis and the angular momentum vector</span>
+phi_dot = 5; <span class="comment">% rotational rate in radians per second</span>
+psi_dot = 10.66; <span class="comment">%rad/sec</span>
+<span class="comment">%define object and load initial conditions into its properties including position to track</span>
+object1 = Cylinder;
+object1.mass = 1;
+object1.radius = 4;
+object1.height = 20;
+object1.orientation = [phi_0; psi_0; theta];
+<span class="comment">%define point on the object we want to track as a vector from the origin to</span>
+<span class="comment">%that point</span>
+object1.position = [object1.radius/2; object1.radius/4; object1.height/2];
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%% BEHIND THE SCENES %%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%Conversions of spin rates and entered into class properties</span>
+phi_dot = (180/pi)*phi_dot; <span class="comment">%deg per second</span>
+<span class="comment">% psi_dot = 0; %rad/sec</span>
+psi_dot = (180/pi)*psi_dot; <span class="comment">%deg per sec</span>
+object1.spin_rates = [phi_dot; psi_dot];
+</pre><h2>Loop<a name="2"></a></h2><pre class="codeinput"><span class="comment">%this for loop will eventually be "while Applied_Force or</span>
+<span class="comment">%Applied_Moment == 0" and will live inside another for loop called "while sim = true"</span>
+<span class="comment">%which can perhaps be canceled from the GUI with an off switch or something</span>
+Position = zeros(3,T*100+1);        <span class="comment">%preallocate position vector as a function of the total simulation time</span>
+Position(:,1) = object1.position;   <span class="comment">%and define initial position</span>
+n = 1;
+
+tic
+<span class="keyword">while</span> t &lt;= T  <span class="comment">%start at 2 for now, but eventually want it to be t_of_object_initialization + dt</span>
+    t = t + dt;     <span class="comment">%define the time stamp at which we will calculate</span>
+    <span class="comment">%disp('time incremented')</span>
+    [object1.orientation, Position(:,n)] = object1.freerotate(dt,Nframe);
+    <span class="comment">%disp('object rotated')</span>
+    <span class="comment">%disp('position plot updated')</span>
+    n = n + 1;
+<span class="keyword">end</span>
+toc
+
+figure;
+plot3(Position(1,:),Position(2,:),Position(3,:),<span class="string">'b'</span>)
+<span class="comment">%zlim([-1 8]);</span>
+title(<span class="string">'Position of a point of the top face of a directly precessing cylinder'</span>)
+</pre><pre class="codeoutput">Elapsed time is 0.054187 seconds.
+</pre><img vspace="5" hspace="5" src="Simulation_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Simulation: This is the simulation first draft. Physics engine will run inside this
+
+% Define frames: need to make these globals
+
+clc
+clear all
+close all
+
+global Nframe
+global dt
+global T
+
+%define simulation space frame
+Nframe = [1 0 0; 0 1 0; 0 0 1];
+
+T = 7.25;                      %duration of simulation
+dt = 0.01;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% STUFF THAT WILL HAPPEN IN THE GUI %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%define initial conditions
+t = 0;
+phi_0 = 0;  %initial spin orientation
+psi_0 = 0;  %initial precession orientation
+theta = 30;  % The newtation angle, it is between the spin axis and the angular momentum vector
+phi_dot = 5; % rotational rate in radians per second
+psi_dot = 10.66; %rad/sec
+%define object and load initial conditions into its properties including position to track
+object1 = Cylinder;
+object1.mass = 1;
+object1.radius = 4;
+object1.height = 20;
+object1.orientation = [phi_0; psi_0; theta];
+%define point on the object we want to track as a vector from the origin to
+%that point
+object1.position = [object1.radius/2; object1.radius/4; object1.height/2];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% BEHIND THE SCENES %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Conversions of spin rates and entered into class properties
+phi_dot = (180/pi)*phi_dot; %deg per second
+% psi_dot = 0; %rad/sec
+psi_dot = (180/pi)*psi_dot; %deg per sec
+object1.spin_rates = [phi_dot; psi_dot];
+
+%% Loop
+%this for loop will eventually be "while Applied_Force or 
+%Applied_Moment == 0" and will live inside another for loop called "while sim = true"
+%which can perhaps be canceled from the GUI with an off switch or something
+Position = zeros(3,T*100+1);        %preallocate position vector as a function of the total simulation time
+Position(:,1) = object1.position;   %and define initial position
+n = 1;
+
+tic
+while t <= T  %start at 2 for now, but eventually want it to be t_of_object_initialization + dt
+    t = t + dt;     %define the time stamp at which we will calculate
+    %disp('time incremented')
+    [object1.orientation, Position(:,n)] = object1.freerotate(dt,Nframe);
+    %disp('object rotated')
+    %disp('position plot updated')
+    n = n + 1;
+end
+toc
+
+figure;
+plot3(Position(1,:),Position(2,:),Position(3,:),'b')
+%zlim([-1 8]);
+title('Position of a point of the top face of a directly precessing cylinder')
+##### SOURCE END #####
+--></body></html>

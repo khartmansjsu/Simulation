@@ -1,0 +1,2 @@
+Files in this folder are functions which are being developed for future use, but are not currently being used by the simulation package. If a function is needed
+in the simulation package, move it from here to the Simulation folder. Thank you.

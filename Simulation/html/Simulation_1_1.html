@@ -1,0 +1,249 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Simulation_1_1</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-04-16"><meta name="DC.source" content="Simulation_1_1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Simulation: This is the simulation second draft. Physics engine will run inside this</a></li><li><a href="#2">Loop</a></li><li><a href="#3">ADD THE BELOW IN FOR A NICE MOVIE, BUT PROGRAM RUNTIME WILL INCREASE %%%</a></li></ul></div><h2>Simulation: This is the simulation second draft. Physics engine will run inside this<a name="1"></a></h2><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%%%%%%% Version 1_1 attempts to give the cylinder    %%%%%%%%%</span>
+<span class="comment">%%%%%%%%% actual dimensions and orient it around the   %%%%%%%%%</span>
+<span class="comment">%%%%%%%%% center of mass so that position tracking     %%%%%%%%%</span>
+<span class="comment">%%%%%%%%% and calculation of inertia all use the same  %%%%%%%%%</span>
+<span class="comment">%%%%%%%%% frame                                        %%%%%%%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+clc
+clear <span class="string">all</span>
+close <span class="string">all</span>
+
+<span class="comment">% Define frames: need to make these globals</span>
+<span class="keyword">global</span> Nframe
+<span class="keyword">global</span> dt
+<span class="keyword">global</span> T
+
+<span class="comment">%define simulation space frame</span>
+Nframe = [1 0 0; 0 1 0; 0 0 1];
+
+T = 7.25;                      <span class="comment">% duration of simulation</span>
+dt = 0.01;
+t = 0;
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%% STUFF THAT WILL HAPPEN IN THE GUI %%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%define initial conditions</span>
+phi_0 = 0;  <span class="comment">%initial spin orientation</span>
+psi_0 = 0;  <span class="comment">%initial precession orientation</span>
+theta_0 = 20;  <span class="comment">% The newtation angle, it is between the spin axis and the angular momentum vector</span>
+phi_dot = 10; <span class="comment">% rotational rate in radians per second</span>
+psi_dot = 10.66; <span class="comment">%rad/sec</span>
+theta_dot = 0;
+<span class="comment">%define object and load initial conditions into its properties</span>
+object1 = Cylinder;
+object1.mass = 1; object1.radius = 4; object1.height = 20;
+object1.orientation = [phi_0; psi_0; theta_0];
+[X,Y,Z] = cylinder([object1.radius object1.radius object1.radius],40);
+points = pointcloud(X,Y,Z*object1.height); points(3,:) = points(3,:) - object1.height/2;
+
+<span class="comment">%define point on the object we want to track as a vector from the origin to</span>
+<span class="comment">%that point</span>
+          R_na = [cosd(object1.orientation(2)) -sind(object1.orientation(2)) 0;        <span class="comment">%Precession rotation matrix</span>
+              sind(object1.orientation(2)) cosd(object1.orientation(2)) 0;
+              0 0 1];
+          R_ag = [1 0 0;                                                       <span class="comment">%Newtation rotation matrix</span>
+                  0 cosd(object1.orientation(3)) -sind(object1.orientation(3));
+                  0 sind(object1.orientation(3)) cosd(object1.orientation(3))];
+          R_gb = [cosd(object1.orientation(1)) -sind(object1.orientation(1)) 0;        <span class="comment">%Spin rotation matrix</span>
+                  sind(object1.orientation(1)) cosd(object1.orientation(1)) 0;
+                  0 0 1];
+           R_nb = R_na*R_ag*R_gb;                <span class="comment">%Matrix from N--&gt;B</span>
+object1.position = R_nb*points;
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%% BEHIND THE SCENES %%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%Conversions of spin rates and entered into class phelp roperties</span>
+phi_dot = (180/pi)*phi_dot; <span class="comment">%deg per second</span>
+<span class="comment">% psi_dot = 0; %rad/sec</span>
+psi_dot = (180/pi)*psi_dot; <span class="comment">%deg per sec</span>
+theta_dot = (180/pi)*theta_dot; <span class="comment">%deg per sec</span>
+object1.spin_rates = [phi_dot; psi_dot; theta_dot];
+</pre><h2>Loop<a name="2"></a></h2><pre class="codeinput"><span class="comment">%this for loop will eventually be "while Applied_Force or</span>
+<span class="comment">%Applied_Moment == 0" and will live inside another for loop called "while sim = true"</span>
+<span class="comment">%which can perhaps be canceled from the GUI with an off switch or something</span>
+Position = zeros(3,123,T*100+1);        <span class="comment">%preallocate position vector as a function of the total simulation time</span>
+n = 1;
+nn = 1;
+Position(:,:,n) = object1.position;   <span class="comment">%and define initial position</span>
+fprintf(<span class="string">'Runtime for a simulation length of %f seconds\n'</span>,T)
+tic
+<span class="keyword">while</span> t &lt;= T        <span class="comment">%want this to eventually be "While objectX exists, obey the laws of physics"</span>
+    t = t + dt;     <span class="comment">%define the time stamp at which we will calculate</span>
+    n = n + 1;
+    <span class="comment">%disp('time incremented')</span>
+    [object1.orientation, Position(:,:,n)] = object1.freerotate(dt,Nframe);
+</pre><h2>ADD THE BELOW IN FOR A NICE MOVIE, BUT PROGRAM RUNTIME WILL INCREASE %%%<a name="3"></a></h2><pre class="codeinput"><span class="comment">%     plot3(Position(1,:,nn),Position(2,:,nn),Position(3,:,nn),'b.'); axis equal; hold on;</span>
+<span class="comment">%     plot3(Position(1,101,nn),Position(2,101,nn),Position(3,101,nn),'r-o'); hold off</span>
+<span class="comment">%     M(nn) = getframe(gcf);</span>
+<span class="comment">%     nn = nn + 1;</span>
+
+<span class="keyword">end</span>
+toc
+</pre><pre class="codeoutput">Runtime for a simulation length of 7.250000 seconds
+Elapsed time is 0.059111 seconds.
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Simulation: This is the simulation second draft. Physics engine will run inside this
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% Version 1_1 attempts to give the cylinder    %%%%%%%%%
+%%%%%%%%% actual dimensions and orient it around the   %%%%%%%%%
+%%%%%%%%% center of mass so that position tracking     %%%%%%%%%
+%%%%%%%%% and calculation of inertia all use the same  %%%%%%%%%
+%%%%%%%%% frame                                        %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clc
+clear all
+close all
+
+% Define frames: need to make these globals
+global Nframe
+global dt
+global T
+
+%define simulation space frame
+Nframe = [1 0 0; 0 1 0; 0 0 1];
+
+T = 7.25;                      % duration of simulation
+dt = 0.01;
+t = 0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% STUFF THAT WILL HAPPEN IN THE GUI %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%define initial conditions
+phi_0 = 0;  %initial spin orientation
+psi_0 = 0;  %initial precession orientation
+theta_0 = 20;  % The newtation angle, it is between the spin axis and the angular momentum vector
+phi_dot = 10; % rotational rate in radians per second
+psi_dot = 10.66; %rad/sec
+theta_dot = 0;
+%define object and load initial conditions into its properties
+object1 = Cylinder;
+object1.mass = 1; object1.radius = 4; object1.height = 20;
+object1.orientation = [phi_0; psi_0; theta_0];
+[X,Y,Z] = cylinder([object1.radius object1.radius object1.radius],40);
+points = pointcloud(X,Y,Z*object1.height); points(3,:) = points(3,:) - object1.height/2;
+
+%define point on the object we want to track as a vector from the origin to
+%that point
+          R_na = [cosd(object1.orientation(2)) -sind(object1.orientation(2)) 0;        %Precession rotation matrix
+              sind(object1.orientation(2)) cosd(object1.orientation(2)) 0;
+              0 0 1];
+          R_ag = [1 0 0;                                                       %Newtation rotation matrix
+                  0 cosd(object1.orientation(3)) -sind(object1.orientation(3));     
+                  0 sind(object1.orientation(3)) cosd(object1.orientation(3))];
+          R_gb = [cosd(object1.orientation(1)) -sind(object1.orientation(1)) 0;        %Spin rotation matrix
+                  sind(object1.orientation(1)) cosd(object1.orientation(1)) 0;
+                  0 0 1];
+           R_nb = R_na*R_ag*R_gb;                %Matrix from NREPLACE_WITH_DASH_DASH>B
+object1.position = R_nb*points;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% BEHIND THE SCENES %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Conversions of spin rates and entered into class phelp roperties
+phi_dot = (180/pi)*phi_dot; %deg per second
+% psi_dot = 0; %rad/sec
+psi_dot = (180/pi)*psi_dot; %deg per sec
+theta_dot = (180/pi)*theta_dot; %deg per sec
+object1.spin_rates = [phi_dot; psi_dot; theta_dot];
+
+%% Loop
+%this for loop will eventually be "while Applied_Force or 
+%Applied_Moment == 0" and will live inside another for loop called "while sim = true"
+%which can perhaps be canceled from the GUI with an off switch or something
+Position = zeros(3,123,T*100+1);        %preallocate position vector as a function of the total simulation time
+n = 1;
+nn = 1;
+Position(:,:,n) = object1.position;   %and define initial position
+fprintf('Runtime for a simulation length of %f seconds\n',T)
+tic
+while t <= T        %want this to eventually be "While objectX exists, obey the laws of physics"
+    t = t + dt;     %define the time stamp at which we will calculate
+    n = n + 1;
+    %disp('time incremented')
+    [object1.orientation, Position(:,:,n)] = object1.freerotate(dt,Nframe);    
+    
+    %%% ADD THE BELOW IN FOR A NICE MOVIE, BUT PROGRAM RUNTIME WILL INCREASE %%%
+    
+%     plot3(Position(1,:,nn),Position(2,:,nn),Position(3,:,nn),'b.'); axis equal; hold on;
+%     plot3(Position(1,101,nn),Position(2,101,nn),Position(3,101,nn),'r-o'); hold off
+%     M(nn) = getframe(gcf);
+%     nn = nn + 1;
+
+end
+toc
+
+
+##### SOURCE END #####
+--></body></html>

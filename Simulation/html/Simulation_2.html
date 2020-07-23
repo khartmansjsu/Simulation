@@ -1,0 +1,299 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Simulation_2</title><meta name="generator" content="MATLAB 9.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-07-23"><meta name="DC.source" content="Simulation_2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Simulation: This is the simulation first draft. Physics engine will run inside this</a></li><li><a href="#2">Loop</a></li><li><a href="#3">ADD THE BELOW IN FOR A NICE MOVIE %%%</a></li><li><a href="#4">END OF MOVIE CODE %%%</a></li></ul></div><h2 id="1">Simulation: This is the simulation first draft. Physics engine will run inside this</h2><pre class="codeinput"><span class="comment">% Define frames: need to make these globals</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%%%%%%% Version 2 adds thrusters for angular momentum %%%%%%%%%</span>
+<span class="comment">%%%%%%%%% and a function that can solve for position if %%%%%%%%%</span>
+<span class="comment">%%%%%%%%% a thruster is fired for some time.            %%%%%%%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+clc
+clear <span class="string">all</span>
+close <span class="string">all</span>
+
+<span class="keyword">global</span> Nframe
+<span class="keyword">global</span> dt
+<span class="keyword">global</span> T
+
+<span class="comment">%define simulation space frame</span>
+Nframe = [1 0 0; 0 1 0; 0 0 1];
+
+T = 10;                      <span class="comment">%duration of simulation</span>
+dt = 0.01;                   <span class="comment">%time increment</span>
+t = 0;                       <span class="comment">%initial time</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%% STUFF THAT WILL HAPPEN IN THE GUI %%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%define initial conditions</span>
+phi_0 = 0;  <span class="comment">%initial spin orientation (Bframe x-axis)</span>
+psi_0 = 0;  <span class="comment">%initial precession orientation</span>
+theta_0 = 0;  <span class="comment">% The newtation angle, it is between the spin axis and the angular momentum vector</span>
+phi_dot = 0;  <span class="comment">% initial rotation rate is zero (we will add rotation with a thruster)</span>
+<span class="comment">% If and as forces act on the object to rotate it in the precession and</span>
+<span class="comment">% newtation frames, the two below rates  will be defined and tracked as</span>
+<span class="comment">% properties of the object</span>
+psi_dot = 0;
+theta_dot = 0;
+<span class="comment">%define object and load its initial conditions into its properties</span>
+object1 = Cylinder;     <span class="comment">%cylinder's mass properties are easy to define</span>
+object1.mass = 5; object1.radius = 4; object1.height = 20; object1.inertial_tensor = object1.CalculateInertialTensor;
+object1.orientation = [phi_0; psi_0; theta_0];
+<span class="comment">%NOTE: Thruster definitions needs to be developed more. They are super</span>
+<span class="comment">%buggy and don't work as intended.</span>
+object1.Thruster1 = [0.4 0 2 0];    <span class="comment">%define moment arm and thruster force</span>
+object1.Thruster2 = [0.4 0 -2 0];    <span class="comment">%define moment arm and thruster force</span>
+<span class="comment">% define a cloud of points to track as I build this toolbox. Eventually</span>
+<span class="comment">% this point cloud will not be needed, and we will only need mass</span>
+<span class="comment">% properties and the locations of things like thrusters, pilots, fuel</span>
+<span class="comment">% tanks, ammunition caches, etc.</span>
+N = 20;
+[X,Y,Z] = cylinder([object1.radius object1.radius object1.radius],N);
+<span class="comment">%IMPORTANT: pointcloud() is a custom function which converts the awful</span>
+<span class="comment">%output of cylinder() into a useable array of points. It is included in</span>
+<span class="comment">%this commit.</span>
+object1.pointcloud = pointcloud(X,Y,Z*object1.height); object1.pointcloud(3,:) = object1.pointcloud(3,:) - object1.height/2;
+
+<span class="comment">% Rotate the currently upright cylinder to its defined initial orientation</span>
+          R_na = [cosd(object1.orientation(2)) -sind(object1.orientation(2)) 0;        <span class="comment">%Precession rotation matrix</span>
+              sind(object1.orientation(2)) cosd(object1.orientation(2)) 0;
+              0 0 1];
+          R_ag = [1 0 0;                                                       <span class="comment">%Newtation rotation matrix</span>
+                  0 cosd(object1.orientation(3)) -sind(object1.orientation(3));
+                  0 sind(object1.orientation(3)) cosd(object1.orientation(3))];
+          R_gb = [cosd(object1.orientation(1)) -sind(object1.orientation(1)) 0;        <span class="comment">%Spin rotation matrix</span>
+                  sind(object1.orientation(1)) cosd(object1.orientation(1)) 0;
+                  0 0 1];
+           R_nb = R_na*R_ag*R_gb;                <span class="comment">%Matrix from N--&gt;B</span>
+object1.position = R_nb*object1.pointcloud;
+disp(object1.position(:,N-1));    <span class="comment">%displaying the initial tracked point of the point cloud for troubleshooting purposes</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%%%% BEHIND THE SCENES %%%%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%Conversions of spin rates and entered into class phelp roperties</span>
+phi_dot = (180/pi)*phi_dot; <span class="comment">%deg per second</span>
+<span class="comment">% psi_dot = 0; %rad/sec</span>
+psi_dot = (180/pi)*psi_dot; <span class="comment">%deg per sec</span>
+theta_dot = (180/pi)*theta_dot; <span class="comment">%deg per sec</span>
+object1.spin_rates = [phi_dot; psi_dot; theta_dot];
+</pre><pre class="codeoutput">   -1.2361
+    3.8042
+  -10.0000
+
+</pre><h2 id="2">Loop</h2><pre class="codeinput"><span class="comment">%this for loop will eventually be "while Applied_Force or</span>
+<span class="comment">%Applied_Moment == 0" and will live inside another for loop called "while sim = true"</span>
+<span class="comment">%which can perhaps be canceled from the GUI with an off switch or something</span>
+Position = zeros(3,(N+1)*3,T*100+1);        <span class="comment">%preallocate position vector as a function of the total simulation time. This vector is a history of the object.position's movement</span>
+n = 1;
+Position(:,:,n) = object1.position;   <span class="comment">%and define initial position</span>
+tic
+<span class="keyword">while</span> t &lt;= T  <span class="comment">%start at 2 for now, but eventually want it to be t_of_object_initialization + dt</span>
+</pre><h2 id="3">ADD THE BELOW IN FOR A NICE MOVIE %%%</h2><pre class="codeinput">    plot3(Position(1,:,n),Position(2,:,n),Position(3,:,n),<span class="string">'b.'</span>); axis <span class="string">equal</span>; hold <span class="string">on</span>;
+    plot3(Position(1,N-1,n),Position(2,N-1,n),Position(3,N-1,n),<span class="string">'r-o'</span>); hold <span class="string">off</span>
+    xlabel(<span class="string">'x'</span>); ylabel(<span class="string">'y'</span>); zlabel(<span class="string">'z'</span>)
+    text(0,object1.height,sprintf(<span class="string">'Timestamp: %f'</span>,t))
+    title(<span class="string">'Motion of the object'</span>)
+    M(n) = getframe(gcf);
+</pre><h2 id="4">END OF MOVIE CODE %%%</h2><pre class="codeinput">    t = t + dt;     <span class="comment">%define the time stamp at which we will calculate</span>
+    n = n + 1;
+    <span class="keyword">if</span> t &lt; 3                                 <span class="comment">%for three seconds, no forces are applied</span>
+        [object1.orientation, object1.position] = object1.freerotate(dt,Nframe);
+    <span class="keyword">elseif</span> (3 &lt;= t) &amp;&amp; (t &lt;= 3.5)            <span class="comment">%for a half a second, thruster 1 is fired</span>
+        [object1.spin_rates, object1.orientation, object1.position] = object1.firethruster(object1.Thruster1,dt,Nframe);    <span class="comment">%here we fire a thruster, need to structure our method around this notation</span>
+    <span class="keyword">elseif</span> (7.5 &lt;= t) &amp;&amp; (t &lt;= 8)            <span class="comment">%for a half a second, thruster 2 is fired (opposite direction)</span>
+        [object1.spin_rates, object1.orientation, object1.position] = object1.firethruster(object1.Thruster2,dt,Nframe);
+    <span class="keyword">else</span>                                     <span class="comment">%for two seconds, no forces are applied</span>
+        [object1.orientation, object1.position] = object1.freerotate(dt,Nframe);
+    <span class="keyword">end</span>
+    Position(:,:,n) = object1.position;
+<span class="keyword">end</span>
+toc
+disp(<span class="string">'Final position of tracked point'</span>);
+disp(object1.position(:,N-1));
+</pre><pre class="codeoutput">Elapsed time is 35.636587 seconds.
+Final position of tracked point
+    3.9126
+    0.8316
+  -10.0000
+
+</pre><img vspace="5" hspace="5" src="Simulation_2_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Simulation: This is the simulation first draft. Physics engine will run inside this
+
+% Define frames: need to make these globals
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%% Version 2 adds thrusters for angular momentum %%%%%%%%%
+%%%%%%%%% and a function that can solve for position if %%%%%%%%%
+%%%%%%%%% a thruster is fired for some time.            %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clc
+clear all
+close all
+
+global Nframe
+global dt
+global T
+
+%define simulation space frame
+Nframe = [1 0 0; 0 1 0; 0 0 1];
+
+T = 10;                      %duration of simulation
+dt = 0.01;                   %time increment
+t = 0;                       %initial time
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% STUFF THAT WILL HAPPEN IN THE GUI %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%define initial conditions
+phi_0 = 0;  %initial spin orientation (Bframe x-axis)
+psi_0 = 0;  %initial precession orientation
+theta_0 = 0;  % The newtation angle, it is between the spin axis and the angular momentum vector
+phi_dot = 0;  % initial rotation rate is zero (we will add rotation with a thruster)
+% If and as forces act on the object to rotate it in the precession and
+% newtation frames, the two below rates  will be defined and tracked as
+% properties of the object
+psi_dot = 0;
+theta_dot = 0;
+%define object and load its initial conditions into its properties
+object1 = Cylinder;     %cylinder's mass properties are easy to define
+object1.mass = 5; object1.radius = 4; object1.height = 20; object1.inertial_tensor = object1.CalculateInertialTensor;
+object1.orientation = [phi_0; psi_0; theta_0];
+%NOTE: Thruster definitions needs to be developed more. They are super
+%buggy and don't work as intended.
+object1.Thruster1 = [0.4 0 2 0];    %define moment arm and thruster force
+object1.Thruster2 = [0.4 0 -2 0];    %define moment arm and thruster force
+% define a cloud of points to track as I build this toolbox. Eventually
+% this point cloud will not be needed, and we will only need mass
+% properties and the locations of things like thrusters, pilots, fuel
+% tanks, ammunition caches, etc.
+N = 20;
+[X,Y,Z] = cylinder([object1.radius object1.radius object1.radius],N);
+%IMPORTANT: pointcloud() is a custom function which converts the awful
+%output of cylinder() into a useable array of points. It is included in
+%this commit.
+object1.pointcloud = pointcloud(X,Y,Z*object1.height); object1.pointcloud(3,:) = object1.pointcloud(3,:) - object1.height/2;
+
+% Rotate the currently upright cylinder to its defined initial orientation
+          R_na = [cosd(object1.orientation(2)) -sind(object1.orientation(2)) 0;        %Precession rotation matrix
+              sind(object1.orientation(2)) cosd(object1.orientation(2)) 0;
+              0 0 1];
+          R_ag = [1 0 0;                                                       %Newtation rotation matrix
+                  0 cosd(object1.orientation(3)) -sind(object1.orientation(3));     
+                  0 sind(object1.orientation(3)) cosd(object1.orientation(3))];
+          R_gb = [cosd(object1.orientation(1)) -sind(object1.orientation(1)) 0;        %Spin rotation matrix
+                  sind(object1.orientation(1)) cosd(object1.orientation(1)) 0;
+                  0 0 1];
+           R_nb = R_na*R_ag*R_gb;                %Matrix from NREPLACE_WITH_DASH_DASH>B
+object1.position = R_nb*object1.pointcloud;
+disp(object1.position(:,N-1));    %displaying the initial tracked point of the point cloud for troubleshooting purposes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% BEHIND THE SCENES %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Conversions of spin rates and entered into class phelp roperties
+phi_dot = (180/pi)*phi_dot; %deg per second
+% psi_dot = 0; %rad/sec
+psi_dot = (180/pi)*psi_dot; %deg per sec
+theta_dot = (180/pi)*theta_dot; %deg per sec
+object1.spin_rates = [phi_dot; psi_dot; theta_dot];
+%% Loop
+%this for loop will eventually be "while Applied_Force or 
+%Applied_Moment == 0" and will live inside another for loop called "while sim = true"
+%which can perhaps be canceled from the GUI with an off switch or something
+Position = zeros(3,(N+1)*3,T*100+1);        %preallocate position vector as a function of the total simulation time. This vector is a history of the object.position's movement
+n = 1;
+Position(:,:,n) = object1.position;   %and define initial position
+tic
+while t <= T  %start at 2 for now, but eventually want it to be t_of_object_initialization + dt
+      %%% ADD THE BELOW IN FOR A NICE MOVIE %%%
+    plot3(Position(1,:,n),Position(2,:,n),Position(3,:,n),'b.'); axis equal; hold on;
+    plot3(Position(1,N-1,n),Position(2,N-1,n),Position(3,N-1,n),'r-o'); hold off
+    xlabel('x'); ylabel('y'); zlabel('z')
+    text(0,object1.height,sprintf('Timestamp: %f',t))
+    title('Motion of the object')
+    M(n) = getframe(gcf);
+              %%% END OF MOVIE CODE %%%
+    t = t + dt;     %define the time stamp at which we will calculate
+    n = n + 1;
+    if t < 3                                 %for three seconds, no forces are applied
+        [object1.orientation, object1.position] = object1.freerotate(dt,Nframe);    
+    elseif (3 <= t) && (t <= 3.5)            %for a half a second, thruster 1 is fired
+        [object1.spin_rates, object1.orientation, object1.position] = object1.firethruster(object1.Thruster1,dt,Nframe);    %here we fire a thruster, need to structure our method around this notation
+    elseif (7.5 <= t) && (t <= 8)            %for a half a second, thruster 2 is fired (opposite direction)
+        [object1.spin_rates, object1.orientation, object1.position] = object1.firethruster(object1.Thruster2,dt,Nframe);
+    else                                     %for two seconds, no forces are applied
+        [object1.orientation, object1.position] = object1.freerotate(dt,Nframe);
+    end
+    Position(:,:,n) = object1.position;
+end
+toc
+disp('Final position of tracked point');
+disp(object1.position(:,N-1));
+##### SOURCE END #####
+--></body></html>
