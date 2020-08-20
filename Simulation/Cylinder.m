@@ -5,12 +5,12 @@ classdef Cylinder
       radius                        %radius
       inertial_tensor               %[3x3] mass properties matrix
       position                      %[x,y,z] object's current point cloud
-      orientation                   %[phi;psi;theta]
-      pointcloud                    %[x,y,z] object's initial position 
-      spin_rates                    %[phi_dot;psi_dot;theta_dot]
+      orientation                   %[psi;phi;theta]
+      pointcloud                    %[x,y,z] object's initial position
+      spin_rates                    %[psi_dot;phi_dot;theta_dot]
       reaction_wheel_spin           %angular velocity vector IN B FRAME [x1; x2; x3] deg/s
       reaction_wheel_I              %[3x3] mass properties matrix
-      Thruster1                     %a thruster whose Force vector is defined by the user
+      Thruster1                     %a thruster whose Force vector is defined by the user [[Force] [Location of thruster]]
       Thruster2
    end
    methods
@@ -34,17 +34,17 @@ classdef Cylinder
           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
           delta = new_orientation - obj.orientation;    %going to keep this value handy for feedback loops
           % rotate
-          R_na = [cosd(new_orientation(2)) -sind(new_orientation(2)) 0;        %Precession rotation matrix
-                  sind(new_orientation(2)) cosd(new_orientation(2)) 0;
+          R_an = [cosd(new_orientation(1)) sind(new_orientation(1)) 0;        %Precession rotation matrix
+                  -sind(new_orientation(1)) cosd(new_orientation(1)) 0;
                   0 0 1];
-          R_ag = [1 0 0;                                                       %Newtation rotation matrix
-                  0 cosd(new_orientation(3)) -sind(new_orientation(3));     
-                  0 sind(new_orientation(3)) cosd(new_orientation(3))];
-          R_gb = [cosd(new_orientation(1)) -sind(new_orientation(1)) 0;        %Spin rotation matrix
-                  sind(new_orientation(1)) cosd(new_orientation(1)) 0;
+          R_ga = [1 0 0;                                                       %Newtation rotation matrix
+                  0 cosd(new_orientation(3)) sind(new_orientation(3));     
+                  0 -sind(new_orientation(3)) cosd(new_orientation(3))];
+          R_bg = [cosd(new_orientation(2)) sind(new_orientation(2)) 0;        %Spin rotation matrix
+                  -sind(new_orientation(2)) cosd(new_orientation(2)) 0;
                   0 0 1];
-           R_nb = R_na*R_ag*R_gb;                %Matrix from N-->B
-           Bframe = Nframe*R_nb;                 %Define B frame
+          R_bn = R_bg*R_ga*R_an;                %  (rotates to b from n)
+          Bframe = R_bn.'*Nframe;                 %Define B frame in terms of new angles and rotation matrices
           % w = psi_dot*N_x + phi_dot*B_x;
           % I = [(m/12)*(3*r^2+h^2) 0 0;                 %Check if mass properties matrix is constant
           % 0 (m/12)*(3*r^2+h^2) 0;
@@ -52,28 +52,33 @@ classdef Cylinder
           position = Bframe*obj.pointcloud;  %update position property as a function of initial position and current orientation
       end
       function [w, new_orientation, position] = firethruster(obj,Thruster,dt,Nframe)
-          M = Thruster(1)*obj.radius*Thruster(2:4).';
-%           w1 = [obj.spin_rates(2)*sind(obj.orientation(3))*sind(obj.orientation(1)) + obj.spin_rates(3)*cosd(obj.orientation(1)); 
-%               obj.spin_rates(2)*sind(obj.orientation(3))*cosd(obj.orientation(1)) - obj.spin_rates(3)*sind(obj.orientation(1)); 
-%               obj.spin_rates(1) + obj.spin_rates(2)*cosd(obj.orientation(3))];
-          w = dt*(obj.inertial_tensor.'*M) + obj.spin_rates;
+          %calculate the moment from the moment arm of the thruster being
+          %fired, and the force that the thruster exerts
+          M = cross(Thruster(:,2),Thruster(:,1));
+          %intermediate calculation of the matrix which relates rotational
+          %rate of Bframe to the rotational rate of the Euler angles (if
+          %theta is 0, we have some problems.)
+          Invert = 1/sind(obj.orientation(3))*[sind(obj.orientation(2)) cosd(obj.orientation(2)) 0;...
+                                               -sind(obj.orientation(2))*cosd(obj.orientation(3)) -cosd(obj.orientation(2))*cosd(obj.orientation(3)) sind(obj.orientation(3));...
+                                               cosd(obj.orientation(2))*sind(obj.orientation(3)) -sind(obj.orientation(2))*sind(obj.orientation(3)) 0];
+          w = Invert*dt*(obj.inertial_tensor.'*M) + obj.spin_rates;
           new_orientation = [obj.orientation(1) + w(1)*dt;...
                              obj.orientation(2) + w(2)*dt;...
                              obj.orientation(3) + w(3)*dt];
           delta = new_orientation - obj.orientation;    %going to keep this value handy for feedback loops
           %now that we've tracked what has happened to the object, redefine
           %Bframe in terms of Nframe and new rotation matrix
-          R_na = [cosd(new_orientation(2)) -sind(new_orientation(2)) 0;        %Precession rotation matrix
-              sind(new_orientation(2)) cosd(new_orientation(2)) 0;
+          R_an = [cosd(new_orientation(1)) sind(new_orientation(1)) 0;        %Precession rotation matrix
+              -sind(new_orientation(1)) cosd(new_orientation(1)) 0;
               0 0 1];
-          R_ag = [1 0 0;                                                       %Newtation rotation matrix
-                  0 cosd(new_orientation(3)) -sind(new_orientation(3));
-                  0 sind(new_orientation(3)) cosd(new_orientation(3))];
-          R_gb = [cosd(new_orientation(1)) -sind(new_orientation(1)) 0;        %Spin rotation matrix
-                  sind(new_orientation(1)) cosd(new_orientation(1)) 0;
+          R_ga = [1 0 0;                                                       %Newtation rotation matrix
+                  0 cosd(new_orientation(3)) sind(new_orientation(3));
+                  0 -sind(new_orientation(3)) cosd(new_orientation(3))];
+          R_bg = [cosd(new_orientation(2)) sind(new_orientation(2)) 0;        %Spin rotation matrix
+                  -sind(new_orientation(2)) cosd(new_orientation(2)) 0;
                   0 0 1];
-          R_nb = R_na*R_ag*R_gb;                %Matrix from N-->B
-          Bframe = Nframe*R_nb;                 %Define B frame
+          R_bn = R_bg*R_ga*R_an;                %  (rotates to b from n)
+          Bframe = R_bn.'*Nframe;                 %Define B frame
           %update the position of our object (an array of points) and the
           %position of the thruster as functions of initial positions and
           %new object Bframe orientation
