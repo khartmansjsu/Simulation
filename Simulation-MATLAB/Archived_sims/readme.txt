@@ -1,0 +1,1 @@
+This directory has old sims which were written pre- release on github. After Simulation.m was first commited to the MATLAB-Sim repo, all version controlling was done on github.
