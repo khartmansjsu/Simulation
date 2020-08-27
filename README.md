@@ -1,2 +1,1 @@
-# MATLAB
-All things matlab will go in this repo, from physics simulators to games to music to toolboxes
+This repo is a place where the laws of physics reign supreme.
