@@ -1,0 +1,202 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Cylinder</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-04-16"><meta name="DC.source" content="Cylinder.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">classdef</span> Cylinder
+   <span class="keyword">properties</span>
+      mass                          <span class="comment">%mass</span>
+      height                        <span class="comment">%height</span>
+      radius                        <span class="comment">%radius</span>
+      inertial_tensor               <span class="comment">%[3x3] mass properties matrix</span>
+      position                      <span class="comment">%[x,y,z] point to track</span>
+      orientation                   <span class="comment">%[phi;psi;theta]</span>
+      spin_rates                    <span class="comment">%[phi_dot;psi_dot;theta_dot]</span>
+      thrusters                     <span class="comment">%[x y z Fcompbx Fcompby Fcompbz]</span>
+   <span class="keyword">end</span>
+   <span class="keyword">methods</span>
+      <span class="keyword">function</span> I = CalculateInertialTensor(obj)
+          <span class="keyword">if</span> isempty(obj.mass) == 1 || isempty(obj.height) == 1 || isempty(obj.radius) == 1
+              disp(<span class="string">'Cannot define inertial tensor because mass and/or dimensions are not defined.'</span>)
+          <span class="keyword">elseif</span> isempty(obj.inertial_tensor) == 1
+              I = [(obj.mass/12)*(3*obj.radius^2+obj.height^2) 0 0;
+              0 (obj.mass/12)*(3*obj.radius^2+obj.height^2) 0;
+              0 0 (obj.mass*obj.radius^2)/2];
+          <span class="keyword">else</span>
+              disp(<span class="string">'Inertial tensor already defined.'</span>)
+          <span class="keyword">end</span>
+      <span class="keyword">end</span>
+      <span class="keyword">function</span> [orientation, position] = freerotate(obj,dt,Nframe)
+          obj.orientation(1) = obj.orientation(1) + obj.spin_rates(1)*dt;   <span class="comment">% angles grow, they do not reset after 360</span>
+          obj.orientation(2) = obj.orientation(2) + obj.spin_rates(2)*dt;   <span class="comment">% angles grow, they do not reset after 360</span>
+          obj.orientation(3) = obj.orientation(3) + obj.spin_rates(3)*dt;   <span class="comment">% angles grow, they do not reset after 360</span>
+          <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+          <span class="comment">%%%% now we have angles for time stamp we are in %%%%</span>
+          <span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+          <span class="comment">% rotate</span>
+          R_na = [cosd(obj.orientation(2)) -sind(obj.orientation(2)) 0;        <span class="comment">%Precession rotation matrix</span>
+              sind(obj.orientation(2)) cosd(obj.orientation(2)) 0;
+              0 0 1];
+          R_ag = [1 0 0;                                                       <span class="comment">%Newtation rotation matrix</span>
+                  0 cosd(obj.orientation(3)) -sind(obj.orientation(3));
+                  0 sind(obj.orientation(3)) cosd(obj.orientation(3))];
+          R_gb = [cosd(obj.orientation(1)) -sind(obj.orientation(1)) 0;        <span class="comment">%Spin rotation matrix</span>
+                  sind(obj.orientation(1)) cosd(obj.orientation(1)) 0;
+                  0 0 1];
+           R_nb = R_na*R_ag*R_gb;                <span class="comment">%Matrix from N--&gt;B</span>
+           Bframe = Nframe*R_nb;                 <span class="comment">%Define B frame</span>
+          <span class="comment">% w = psi_dot*N_x + phi_dot*B_x;</span>
+          <span class="comment">% I = [(m/12)*(3*r^2+h^2) 0 0;                 %Check if mass properties matrix is constant</span>
+          <span class="comment">% 0 (m/12)*(3*r^2+h^2) 0;</span>
+          <span class="comment">% 0 0 (m*r^2)/2];                              %constant **</span>
+          position = Bframe*obj.position;  <span class="comment">%redefine position of point being tracked</span>
+          orientation = [obj.orientation(1);obj.orientation(2);obj.orientation(3)];
+      <span class="keyword">end</span>
+      <span class="keyword">function</span> [orientation, position] = appliedforce(obj,Fdir,Fpos,dt,Nframe)
+
+
+
+
+      <span class="keyword">end</span>
+   <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">
+ans = 
+
+  Cylinder with properties:
+
+               mass: []
+             height: []
+             radius: []
+    inertial_tensor: []
+           position: []
+        orientation: []
+         spin_rates: []
+          thrusters: []
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+classdef Cylinder
+   properties
+      mass                          %mass
+      height                        %height
+      radius                        %radius
+      inertial_tensor               %[3x3] mass properties matrix
+      position                      %[x,y,z] point to track
+      orientation                   %[phi;psi;theta]
+      spin_rates                    %[phi_dot;psi_dot;theta_dot]
+      thrusters                     %[x y z Fcompbx Fcompby Fcompbz]
+   end
+   methods
+      function I = CalculateInertialTensor(obj)
+          if isempty(obj.mass) == 1 || isempty(obj.height) == 1 || isempty(obj.radius) == 1
+              disp('Cannot define inertial tensor because mass and/or dimensions are not defined.')
+          elseif isempty(obj.inertial_tensor) == 1
+              I = [(obj.mass/12)*(3*obj.radius^2+obj.height^2) 0 0;           
+              0 (obj.mass/12)*(3*obj.radius^2+obj.height^2) 0;
+              0 0 (obj.mass*obj.radius^2)/2];
+          else
+              disp('Inertial tensor already defined.')
+          end
+      end
+      function [orientation, position] = freerotate(obj,dt,Nframe) 
+          obj.orientation(1) = obj.orientation(1) + obj.spin_rates(1)*dt;   % angles grow, they do not reset after 360
+          obj.orientation(2) = obj.orientation(2) + obj.spin_rates(2)*dt;   % angles grow, they do not reset after 360
+          obj.orientation(3) = obj.orientation(3) + obj.spin_rates(3)*dt;   % angles grow, they do not reset after 360          
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          %%%% now we have angles for time stamp we are in %%%%
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          
+          % rotate
+          R_na = [cosd(obj.orientation(2)) -sind(obj.orientation(2)) 0;        %Precession rotation matrix
+              sind(obj.orientation(2)) cosd(obj.orientation(2)) 0;
+              0 0 1];
+          R_ag = [1 0 0;                                                       %Newtation rotation matrix
+                  0 cosd(obj.orientation(3)) -sind(obj.orientation(3));     
+                  0 sind(obj.orientation(3)) cosd(obj.orientation(3))];
+          R_gb = [cosd(obj.orientation(1)) -sind(obj.orientation(1)) 0;        %Spin rotation matrix
+                  sind(obj.orientation(1)) cosd(obj.orientation(1)) 0;
+                  0 0 1];
+           R_nb = R_na*R_ag*R_gb;                %Matrix from NREPLACE_WITH_DASH_DASH>B
+           Bframe = Nframe*R_nb;                 %Define B frame
+          % w = psi_dot*N_x + phi_dot*B_x;
+          % I = [(m/12)*(3*r^2+h^2) 0 0;                 %Check if mass properties matrix is constant
+          % 0 (m/12)*(3*r^2+h^2) 0;
+          % 0 0 (m*r^2)/2];                              %constant **
+          position = Bframe*obj.position;  %redefine position of point being tracked
+          orientation = [obj.orientation(1);obj.orientation(2);obj.orientation(3)];
+      end
+      function [orientation, position] = appliedforce(obj,Fdir,Fpos,dt,Nframe)
+          
+          
+          
+          
+      end
+   end
+end
+##### SOURCE END #####
+--></body></html>
